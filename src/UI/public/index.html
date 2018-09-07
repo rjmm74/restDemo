@@ -105,42 +105,22 @@
 <!--<script src="js/javascript.js"></script>-->
 
 <script type="text/javascript">
-    $(document).ready(function(){
-        var arrayReturn = [];
-        $.ajax({
-            url: "http://localhost:8080/inventory",
-            async: false,
-            dataType: 'json',
-            success: function (data) {
-                for (var i = 0, len = data.length; i < len; i++) {
-                    arrayReturn.push([ data[i].id,data[i].description,data[i].lastSold,data[i].shelfLife,
-                    data[i].department,data[i].price,data[i].unit,data[i].xFor,data[i].cost,]);
-                }
-                inittable(arrayReturn);
-            }
-        });
-        function inittable(data) {
-          table = $('#products').DataTable( {
-              paging: false,
-              searching: false,
-                "aaData": data,
-                "dataSrc": function ( json ) {
-                    console.log(json);
-                    for ( var i=0, len=json.data.length ; i<len ; i++ ) {
-                        json.data[i][0] = '<a href="/message/'+json.data[i][0]+'>View message</a>';
-                    }
-                    return json.data;
-                }
-            } );
-        }
-    });
+$(document).ready(function(){
+var selectOptions = getDepartments();
+getData(false);
+  });
 
 $(document).ready(function () {
     $("#filter").change(function () {
             $("#result").html($(this).val());
-     var arrayReturn = [];
+		getData(true)
+});
+})
+
+function getData(tableExist) {
+        var arrayReturn = [];
         $.ajax({
-            url: "http://localhost:8080/inventory/"+filter.value,
+            url: "http://localhost:8080/inventory/"+ filter.value,
             async: false,
             dataType: 'json',
             success: function (data) {
@@ -148,11 +128,28 @@ $(document).ready(function () {
                     arrayReturn.push([ data[i].id,data[i].description,data[i].lastSold,data[i].shelfLife,
                     data[i].department,data[i].price,data[i].unit,data[i].xFor,data[i].cost,]);
                 }
-                inittable(arrayReturn);
+                inittable(arrayReturn, tableExist);
             }
         });
-        function inittable(data) {
-                table.destroy();
+  }
+
+function getDepartments() {
+        var arrayReturn = [];
+        $.ajax({
+            url: "http://localhost:8080/departments",
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                for (var i = 0, len = data.length; i < len; i++) {
+                    arrayReturn.push([ data[i] ]);
+                }
+            }
+        });
+  }
+function inittable(data, tableExist) {
+        if (tableExist == true) {
+          table.destroy();
+        }
         table =     $('#products').DataTable( {
           paging: false,
               searching: false,
@@ -166,7 +163,4 @@ $(document).ready(function () {
                 }
             } );
         }
-    });
-
-});
-</script>
+    </script>
